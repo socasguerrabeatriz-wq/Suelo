@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plantación de especies · UT2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Plano de obra de jardín: césped, agua, tubería negra de PE y piezas de colores de catálogo */
+:root{
+  color-scheme:light;
+  --bg:#f3f8f1; --bg2:#e4efe0; --card:#ffffff; --ink:#1d2b24; --muted:#5d6b63; --line:#cfdcca;
+  --cesped:#5aa04a; --hoja:#2f7a3b; --agua:#1e88d0; --agua2:#d6ecfa; --pe:#1f2224; --rojo:#d9433a; --naranja:#f08a24; --amarillo:#f5c518; --morado:#7b5bb5; --tierra:#9b6b43;
+  --shadow:0 8px 22px rgba(29,43,36,.12); --r:14px;
+  --fd:"Fredoka",system-ui,sans-serif; --fb:"Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:17px;line-height:1.6}
+h1,h2,h3,h4{font-family:var(--fd);line-height:1.15;margin:0 0 .45em;text-wrap:balance;font-weight:600}
+h2{font-size:clamp(1.7rem,3.8vw,2.5rem)}
+h3{font-size:1.2rem}
+p{margin:.4em 0 .9em}
+b,strong{color:var(--hoja)}
+button{font-family:inherit;cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px}
+svg,canvas{max-width:100%;height:auto;display:block}
+svg text{font-family:var(--fb)}
+
+#topnav{position:sticky;top:0;z-index:50;background:var(--hoja)}
+#topnav .in{display:flex;gap:4px;overflow-x:auto;padding:8px 14px;scrollbar-width:none;max-width:1200px;margin:auto}
+#topnav .in::-webkit-scrollbar{display:none}
+#topnav a{flex:none;text-decoration:none;color:#e3f2df;font-weight:700;font-size:.85rem;padding:6px 12px;border-radius:20px}
+#topnav a:hover{color:#fff}
+#topnav a.on{background:#fff;color:var(--hoja)}
+#prog{height:3px;background:var(--amarillo);width:0}
+
+.sec{padding:56px 16px 60px}
+.sec.alt{background:var(--bg2)}
+.sec.dark{background:#16302a;color:#e6f1e3}
+.sec.dark b{color:var(--amarillo)}
+.wave{height:26px;background:var(--bg);background-image:radial-gradient(circle at 13px -6px,transparent 15px,var(--agua) 16px,var(--agua) 18px,transparent 19px);background-size:26px 26px;opacity:.55}
+.wrap{max-width:1120px;margin:auto}
+.tag{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.tag i{font-style:normal;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--agua);color:#fff;font-family:var(--fd);letter-spacing:0;font-size:.95rem}
+.sec.dark .tag{color:#a9c4b4}
+.lead{font-size:1.07rem;max-width:800px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid2>*,.grid3>*{min-width:0}
+@media (max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;color:var(--ink)}
+.pill{display:inline-block;font-size:.76rem;font-weight:800;padding:2px 10px;border-radius:20px;background:var(--agua2);color:#105f96;margin:2px 4px 2px 0}
+.pill.g{background:#dcefd6;color:#2a6a2f}.pill.r{background:#fbdcd9;color:#a32a22}.pill.o{background:#fde6cf;color:#9a5208}.pill.k{background:var(--pe);color:#fff}
+.note{border-left:5px solid var(--agua);background:#e6f3fc;padding:12px 16px;border-radius:0 10px 10px 0;margin:14px 0;color:var(--ink)}
+.note.y{border-color:var(--amarillo);background:#fdf6d8}
+.note.r{border-color:var(--rojo);background:#fde9e7}
+.btn{border:0;background:var(--hoja);color:#fff;font-weight:800;padding:10px 18px;border-radius:30px;box-shadow:0 3px 0 #1a4d25}
+.btn:active{transform:translateY(3px);box-shadow:none}
+.btn.b{background:var(--agua);box-shadow:0 3px 0 #0f5b91}
+.btn.o{background:var(--naranja);box-shadow:0 3px 0 #a75809}
+.btn.k{background:#55625b;box-shadow:0 3px 0 #333}
+.btn.sm{padding:6px 13px;font-size:.88rem}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.seg button{border:2px solid var(--hoja);background:var(--card);color:var(--hoja);font-weight:800;border-radius:20px;padding:5px 13px;font-size:.88rem}
+.seg button.on{background:var(--hoja);color:#fff}
+input[type=range]{width:100%;accent-color:var(--agua);height:28px}
+input[type=number],select{font:inherit;font-weight:700;width:100%;padding:7px 9px;border-radius:10px;border:2px solid var(--line);background:#fff}
+label.f{font-weight:800;font-size:.88rem;display:block;margin-top:6px}
+.big{font-family:var(--fd);font-size:2rem;font-weight:700;line-height:1.05;color:var(--agua)}
+.tscroll{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff}
+.t th{background:var(--hoja);color:#fff;padding:8px 10px;text-align:left;font-family:var(--fd);font-weight:500}
+.t td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.plate{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px}
+
+/* portada */
+.centro{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.centro .logo{height:80px;flex:none;background:#fff;border-radius:12px;padding:6px}
+.centro .logo img{height:100%;width:auto;display:block}
+.centro .nm{font-weight:800;line-height:1.3}
+.centro .nm small{display:block;color:#a9c4b4;font-weight:700}
+.hero h1{font-size:clamp(2.2rem,5.4vw,3.7rem);color:#fff}
+.hero h1 em{font-style:normal;color:var(--amarillo)}
+.docente{display:inline-flex;gap:10px;align-items:center;background:#24433b;border-radius:30px;padding:6px 16px 6px 6px;margin:6px 0 14px;font-weight:700}
+.docente span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--amarillo);color:var(--ink);font-family:var(--fd)}
+.spray{animation:spray 1.8s ease-in-out infinite;transform-origin:center bottom;transform-box:fill-box}
+@keyframes spray{50%{opacity:.35;transform:scale(.92)}}
+.drop{animation:drop 1.6s linear infinite}
+@keyframes drop{from{transform:translateY(0);opacity:1}to{transform:translateY(16px);opacity:0}}
+.flow{stroke-dasharray:8 8;animation:flow .7s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-16}}
+
+/* simulacro */
+.sim{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start}
+@media (max-width:960px){.sim{grid-template-columns:1fr}}
+.tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:430px;overflow:auto;padding:4px}
+.piece{border:2px solid var(--line);background:#fff;border-radius:12px;padding:6px 4px;text-align:center;font-size:.72rem;font-weight:800;line-height:1.2;transition:transform .15s,border-color .15s}
+.piece:hover{border-color:var(--agua);transform:translateY(-2px)}
+.piece svg{width:56px;height:56px;margin:0 auto 4px}
+.piece.ok{border-color:var(--cesped);background:#eef8eb}
+.piece.ko{border-color:var(--rojo);background:#fdeceb;animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.stepbox{border-left:6px solid var(--agua);background:#fff;border-radius:0 12px 12px 0;padding:12px 16px;margin-bottom:10px}
+.stepbox .n{font-family:var(--fd);color:var(--agua);font-weight:700}
+.phase{display:flex;gap:4px;margin:8px 0}
+.phase span{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.phase span.done{background:var(--cesped)}
+.phase span.cur{background:var(--agua)}
+.slot{animation:pulse 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{50%{transform:scale(1.25);opacity:.6}}
+.placed{animation:pop .45s ease-out}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.feedback{min-height:70px}
+.chk button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;margin:6px 0;font-weight:700}
+.chk button i{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;flex:none}
+.chk button.done{border-color:var(--cesped);background:#eef8eb}
+.chk button.done i{background:var(--cesped);border-color:var(--cesped);color:#fff}
+
+/* quiz y glosario */
+.quiz{max-width:760px;margin:auto}
+.qbar{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-bottom:16px}
+.qbar div{height:100%;background:var(--agua);width:0;transition:width .4s}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px 16px;margin:8px 0;font-size:1rem;font-weight:700;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--agua)}
+.opt.ok{background:#dcefd6;border-color:var(--cesped)}
+.opt.ko{background:#fbdcd9;border-color:var(--rojo)}
+.fb{margin-top:10px;padding:12px 14px;border-radius:10px;display:none}
+.fb.show{display:block}
+.score{font-family:var(--fd);font-size:3rem;text-align:center;color:var(--agua)}
+.flips{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.flip{perspective:900px;height:140px;cursor:pointer;background:none;border:0;padding:0}
+.flip .inn{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on .inn{transform:rotateY(180deg)}
+.flip .fc,.flip .bc{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:grid;place-items:center;padding:12px;text-align:center}
+.flip .fc{color:#fff;font-family:var(--fd);font-size:1.15rem;font-weight:600}
+.flip .bc{background:#fff;border:1px solid var(--line);transform:rotateY(180deg);font-size:.88rem;color:var(--ink)}
+footer{text-align:center;padding:30px 16px 40px;background:#16302a;color:#a9c4b4;font-size:.85rem}
+footer a{color:#cfe6d6}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* propios UT2 */
+.leafseg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.leafseg button{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px;text-align:left;font-weight:700}
+.leafseg button.on{border-color:var(--hoja);background:#eef8eb}
+.leafseg button b{display:block;font-family:var(--fd);font-size:1.15rem;color:var(--hoja)}
+.cal{display:grid;grid-template-columns:150px repeat(12,1fr);gap:3px;font-size:.78rem;font-weight:800;align-items:center}
+.cal .m{text-align:center;color:var(--muted)}
+.cal .c{height:26px;border-radius:5px;background:#eef3ec}
+.cal .c.on{background:var(--cesped)}
+.cal .c.sel{outline:3px solid var(--naranja)}
+@media (max-width:640px){.cal{grid-template-columns:96px repeat(12,1fr);font-size:.62rem}}
+.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.sp{border:0;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .2s}
+.sp:hover{transform:translateY(-3px)}
+.sp .ph{aspect-ratio:4/3;background:#e4efe0;overflow:hidden}
+.sp .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.sp .tx{padding:10px 12px 12px}
+.sp .tx i{font-family:var(--fd);font-style:italic;font-size:1.05rem;color:var(--ink);display:block}
+.sp .tx span{font-size:.84rem;color:var(--muted);font-weight:700}
+.sp.hide{display:none}
+#spModal{position:fixed;inset:0;background:rgba(15,30,25,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+#spModal.on{display:flex}
+#spModal .box{background:#fff;border-radius:18px;max-width:880px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:1.1fr 1fr}
+#spModal .box img{width:100%;height:100%;object-fit:cover;min-height:280px;display:block}
+#spModal .box .in{padding:22px}
+#spModal .close{position:absolute;top:14px;right:18px;background:#fff;border:0;border-radius:50%;width:40px;height:40px;font-size:1.4rem}
+@media (max-width:700px){#spModal .box{grid-template-columns:1fr}#spModal .box img{max-height:260px}}
+.idgame .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.idgame .opts button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:800;font-style:italic}
+.idgame .opts button.ok{border-color:var(--cesped);background:#dcefd6}.idgame .opts button.ko{border-color:var(--rojo);background:#fbdcd9}
+.idgame .pic{aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:#e4efe0}
+.idgame .pic img{width:100%;height:100%;object-fit:cover}
+.uses{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.uses button{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px;text-align:left}
+.uses button.on{border-color:var(--hoja);background:#eef8eb}
+.uses button b{font-family:var(--fd);font-size:1.05rem;display:block}
+@media (max-width:760px){.uses{grid-template-columns:1fr 1fr}.leafseg{grid-template-columns:1fr}}
+.sup{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sup button{border:2px solid var(--line);background:#fff;border-radius:14px;padding:6px;font-weight:800}
+.sup button.on{border-color:var(--hoja);background:#eef8eb}
+.sup button svg{width:100%;height:auto}
+.chkrow button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;margin:6px 0;font-weight:700}
+.chkrow button.ok{border-color:var(--cesped);background:#eef8eb}.chkrow button.ko{border-color:var(--rojo);background:#fdeceb}
+.credit{font-size:.7rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav id="topnav" aria-label="Apartados">
+  <div class="in">
+    <a href="#inicio">Inicio</a>
+    <a href="#arboles">Árboles</a>
+    <a href="#suministro">Suministro</a>
+    <a href="#epocas">Épocas</a>
+    <a href="#plantar">🌳 Plantar paso a paso</a>
+    <a href="#especies">Especies</a>
+    <a href="#coniferas">Coníferas</a>
+    <a href="#arbustos">Arbustos y poda</a>
+    <a href="#trepadoras">Trepadoras</a>
+    <a href="#identifica">¿Quién es quién?</a>
+    <a href="#quiz">Autoevaluación</a>
+  </div>
+  <div id="prog"></div>
+</nav>
+
+<section id="inicio" class="sec dark hero">
+  <div class="wrap grid2" style="align-items:center">
+    <div>
+      <div class="centro"><div class="logo"><img src="data:image/webp;base64,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" alt="Logotipo del CIFP Zonzamas"></div><div class="nm">CIFP Zonzamas<small>Curso 2026-2027</small><small>CFGM Jardinería y Floristería</small></div></div>
+      <span class="tag"><i>2</i> Repaso IML · UT2</span>
+      <h1>Técnicas de <em>plantación</em>: árboles, arbustos y trepadoras</h1>
+      <div class="docente"><span>BS</span>Docente: Beatriz Socas Guerra</div>
+      <p class="lead">Cómo llega la planta del vivero, cuándo se planta, cómo se abre el hoyo, se planta, se entutora y se riega, y las <b>21 especies</b> que más se usan en nuestra jardinería, con sus fotos.</p>
+      <div class="row"><a class="btn o" href="#plantar" style="text-decoration:none">🌳 Planta un árbol</a><a class="btn b" href="#especies" style="text-decoration:none">Ver las especies</a></div>
+    </div>
+    <div class="plate" style="background:#24433b;border-color:#2f5248;padding:0;overflow:hidden"><svg id="heroSvg" viewBox="0 0 460 360" role="img" aria-label="Árbol, arbusto y trepadora en un jardín"></svg></div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- ÁRBOLES -->
+<section id="arboles" class="sec">
+  <div class="wrap">
+    <span class="tag"><i>1</i> Árboles</span>
+    <h2>¿Qué es un árbol en jardinería?</h2>
+    <p class="lead">Vegetal de <b>tronco leñoso</b>, ramificado y de <b>más de 2 metros</b> de altura. Según sus hojas puede ser:</p>
+    <div class="grid2">
+      <div>
+        <div class="leafseg" id="leafSeg">
+          <button class="on" data-k="p"><b>Perennifolio</b>Hoja perenne</button>
+          <button data-k="c"><b>Caducifolio</b>Hoja caduca</button>
+          <button data-k="m"><b>Marcescente</b>o semicaduco</button>
+        </div>
+        <label class="f" style="margin-top:14px">Estación del año: <span id="vSeason"></span></label><input type="range" id="sSeason" min="0" max="3" value="0">
+        <p id="leafTxt" style="font-weight:700"></p>
+      </div>
+      <div class="plate"><svg id="leafSvg" viewBox="0 0 480 300" role="img" aria-label="Árbol que cambia con las estaciones según su tipo de hoja"></svg></div>
+    </div>
+    <div class="grid2" style="margin-top:26px">
+      <div class="card">
+        <h3>📏 Tamaño y uso</h3>
+        <div class="seg" id="sizeSeg"><button class="on" data-k="0">Escaso desarrollo</button><button data-k="1">Tipo medio</button><button data-k="2">Gran ejemplar</button></div>
+        <svg id="sizeSvg" viewBox="0 0 480 220" role="img" aria-label="Comparación de tamaño del árbol con una persona y un edificio"></svg>
+        <p id="sizeTxt" style="margin:6px 0 0;font-weight:700"></p>
+      </div>
+      <div class="card">
+        <h3>🌳 Formas de copa</h3>
+        <p style="margin-top:0;font-size:.92rem">Las copas pueden adoptar formas muy variables. Pulsa una:</p>
+        <svg id="crownSvg" viewBox="0 0 480 200" role="img" aria-label="Siluetas de distintas formas de copa"></svg>
+        <p id="crownTxt" style="margin:6px 0 0;font-weight:700"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- SUMINISTRO -->
+<section id="suministro" class="sec alt">
+  <div class="wrap">
+    <span class="tag"><i>2</i> Suministro</span>
+    <h2>¿Cómo llega el árbol del vivero?</h2>
+    <div class="sup" id="supSeg"></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card" id="supTxt" aria-live="polite"></div>
+      <div class="card">
+        <h3>🔍 Control de calidad: ¿lo aceptas?</h3>
+        <p style="margin-top:0;font-size:.92rem">Llega el camión del vivero. Decide si aceptas cada planta.</p>
+        <div class="chkrow" id="qc"></div>
+        <div id="qcFb" class="note" style="margin-bottom:0">Pulsa ✔ o ✘ en cada caso.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- ÉPOCAS -->
+<section id="epocas" class="sec">
+  <div class="wrap">
+    <span class="tag"><i>3</i> Épocas de plantación</span>
+    <h2>¿Cuándo se planta cada cosa?</h2>
+    <p class="lead">Para árboles y arbustos, la mejor época es cuando la <b>savia está parada</b>. Pulsa un mes para ver qué puedes plantar.</p>
+    <div class="card"><div class="cal" id="cal"></div></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card" id="calTxt" aria-live="polite"></div>
+      <div class="note r" style="margin:0"><b>⛔ Nunca se planta:</b> en suelo helado o excesivamente mojado, con heladas, fuertes vientos, fuertes mareas, lluvia, nieve o temperaturas excesivamente altas.<br><br><b>Ojo:</b> los árboles a <b>raíz desnuda</b> (salvo <i>Melia azedarach</i>) se preparan y suministran en parada vegetativa, cuando aún no han brotado. En zonas cálidas o subtropicales, como Canarias, árboles y arbustos se pueden plantar todo el año.</div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- PLANTAR -->
+<section id="plantar" class="sec alt">
+  <div class="wrap">
+    <span class="tag"><i>🌳</i> Simulador</span>
+    <h2>Planta un árbol paso a paso</h2>
+    <p class="lead">Sigue el procedimiento de los apuntes. En algunos pasos tendrás que tomar una decisión.</p>
+    <div class="phase" id="plBar"></div>
+    <div class="grid2">
+      <div class="plate" style="padding:0;overflow:hidden"><svg id="plSvg" viewBox="0 0 520 420" role="img" aria-label="Sección del hoyo de plantación con el árbol"></svg></div>
+      <div>
+        <div class="stepbox" id="plStep" aria-live="polite"></div>
+        <div id="plCtrl"></div>
+        <div class="card feedback" id="plFb" style="margin-top:10px" aria-live="polite"></div>
+        <div class="row" style="margin-top:10px"><button class="btn k sm" id="plReset">↺ Empezar de nuevo</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- ESPECIES -->
+<section id="especies" class="sec">
+  <div class="wrap">
+    <span class="tag"><i>🌺</i> Especies</span>
+    <h2>Las 21 especies de la unidad</h2>
+    <p class="lead">Pulsa una foto para ver su ficha. Filtra por grupo:</p>
+    <div class="seg" id="spSeg"><button class="on" data-g="all">Todas</button><button data-g="arbol">🌳 Árboles</button><button data-g="conifera">🌲 Coníferas</button><button data-g="arbusto">🌺 Arbustos</button><button data-g="trepadora">🌿 Trepadoras</button></div>
+    <div class="spgrid" id="spGrid"></div>
+    <p class="credit" style="margin-top:10px">Fotos de Wikimedia Commons (licencias libres; autores en la ficha de cada especie). Necesitan conexión a internet.</p>
+  </div>
+</section>
+<div id="spModal" role="dialog" aria-modal="true"><button class="close" aria-label="Cerrar">×</button><div class="box"></div></div>
+
+<div class="wave"></div>
+
+<!-- CONÍFERAS -->
+<section id="coniferas" class="sec alt">
+  <div class="wrap">
+    <span class="tag"><i>🌲</i> Coníferas</span>
+    <h2>Coníferas: ¿para qué las usamos?</h2>
+    <p class="lead">Plantas evolutivamente muy antiguas, aparecieron cientos de millones de años antes que los árboles de hoja ancha. En jardinería se usan por sus <b>hojas persistentes</b>, sobre todo en jardines de zonas áridas o como fondo en jardines de clima templado. Pulsa un uso:</p>
+    <div class="grid2">
+      <div class="uses" id="uses"></div>
+      <div class="plate"><svg id="useSvg" viewBox="0 0 480 280" role="img" aria-label="Ilustración del uso de las coníferas seleccionado"></svg><p id="useTxt" style="margin:6px 4px 0;font-weight:700"></p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- ARBUSTOS -->
+<section id="arbustos" class="sec">
+  <div class="wrap">
+    <span class="tag"><i>✂️</i> Arbustos</span>
+    <h2>Arbustos y su poda</h2>
+    <p class="lead">Plantas <b>leñosas, ramificadas desde el suelo</b>, que generalmente no pasan de <b>3 m</b>; lo normal es que midan entre 1 y 2 m, casi siempre gracias a la poda.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>✂️ Poda anual de regularización de la floración</h3>
+        <p style="margin-top:0;font-size:.92rem">Pulsa las ramas que hay que cortar.</p>
+        <svg id="pruneSvg" viewBox="0 0 480 320" role="img" aria-label="Arbusto con ramas que se pueden cortar"></svg>
+        <div id="pruneFb" style="font-weight:700"></div>
+      </div>
+      <div class="card">
+        <h3>📅 ¿Cuándo podo?</h3>
+        <p style="margin-top:0;font-size:.92rem">Depende de cuándo florece:</p>
+        <div class="seg" id="flSeg"><button data-k="0">Invierno o primavera temprana</button><button data-k="1">Final de primavera o verano</button><button data-k="2">Todo el año (clima cálido)</button><button data-k="3">Rosal refloreciente</button></div>
+        <div id="flTxt" class="note" style="margin-bottom:0">Elige cuándo florece el arbusto.</div>
+        <div class="note y" style="margin-bottom:0">Ojo: hay plantas que florecen en <b>madera vieja</b>. Hay que tenerlo en cuenta al podar para no quitar las flores del año siguiente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- TREPADORAS -->
+<section id="trepadoras" class="sec alt">
+  <div class="wrap">
+    <span class="tag"><i>🌿</i> Trepadoras</span>
+    <h2>Trepadoras: cubrir verjas, pérgolas y paredes</h2>
+    <p class="lead">Arbustos que <b>necesitan un soporte</b> al que adherirse para trepar. Sirven para cubrir verjas, pérgolas, columnas o paredes. Haz crecer la trepadora:</p>
+    <div class="grid2">
+      <div class="plate"><svg id="climbSvg" viewBox="0 0 480 300" role="img" aria-label="Pérgola con una trepadora que crece"></svg>
+        <label class="f">Meses desde la plantación: <span id="vClimb"></span></label><input type="range" id="sClimb" min="0" max="24" value="6"></div>
+      <div class="card">
+        <div class="seg" id="climbSeg"></div>
+        <div id="climbTxt"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<!-- IDENTIFICA -->
+<section id="identifica" class="sec">
+  <div class="wrap">
+    <span class="tag"><i>🔎</i> Juego</span>
+    <h2>¿Quién es quién?</h2>
+    <p class="lead">Mira la foto y elige su nombre científico.</p>
+    <div class="grid2 idgame">
+      <div class="pic"><img id="idImg" alt="Foto de la especie a identificar" referrerpolicy="no-referrer"></div>
+      <div class="card"><div style="font-weight:800;color:var(--muted)" id="idCount"></div><div class="opts" id="idOpts"></div><div id="idFb" style="margin-top:10px"></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="wave"></div>
+
+<section id="quiz" class="sec alt">
+  <div class="wrap">
+    <span class="tag"><i>✓</i> Autoevaluación</span>
+    <h2>¿Preparado para el examen?</h2>
+    <div class="quiz card" id="quizBox"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="centro" style="justify-content:center"><div class="logo" style="height:60px"><img src="data:image/webp;base64,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" alt="Logotipo del CIFP Zonzamas"></div><div class="nm" style="text-align:left;color:#e6f1e3">CIFP Zonzamas · CFGM Jardinería y Floristería<small>Repaso IML · UT2 · Docente: Beatriz Socas Guerra · Curso 2026-2027</small></div></div>
+  Fuente: «Repaso IML. UT2. Técnicas de plantación de especies vegetales. Árboles, arbustos y trepadoras». Fotografías: Wikimedia Commons (licencias Creative Commons o dominio público; autores en cada ficha).
+</footer>
+
+<script>
+(function(){
+"use strict";
+const $=(s,c=document)=>c.querySelector(s),$$=(s,c=document)=>[...c.querySelectorAll(s)];
+function segInit(sel,cb){$$(sel+' button').forEach(b=>b.addEventListener('click',()=>{$$(sel+' button').forEach(x=>x.classList.toggle('on',x===b));cb(b)}))}
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function rng(seed){let s=seed>>>0||1;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}}
+const links=$$('#topnav a');
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));const on=links.find(a=>a.classList.contains('on'));if(on)on.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}}),{rootMargin:'-45% 0px -50% 0px'});
+$$('section.sec').forEach(s=>io.observe(s));
+addEventListener('scroll',()=>{const h=document.documentElement;$('#prog').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'},{passive:true});
+
+/* ---------- especies ---------- */
+const W='https://thumb.wikimedia.org/wikipedia/commons/thumb/';
+const SP=[
+ ['Casuarina equisetifolia','Casuarina, pino australiano','arbol','Perennifolio','Sus ramillas finas y articuladas parecen agujas de pino, pero no es una conífera. Resiste muy bien el viento y la salinidad: útil en zonas costeras y como cortavientos.',W+'6/6f/Casuarina_equisetifolia_-_Darwin_NT.jpg/960px-Casuarina_equisetifolia_-_Darwin_NT.jpg','Bidgee','CC BY 3.0'],
+ ['Ficus benjamina','Ficus, benjamina','arbol','Perennifolio','Hojas brillantes y ramas colgantes. Muy usado en interior y, en clima cálido, en exterior. Sus raíces son muy agresivas: lejos de pavimentos, tuberías y edificios.',W+'1/19/Starr-080608-7576-Ficus_benjamina-habit_with_Laysan_albatross-Gym_Sand_Island-Midway_Atoll_%2824823189861%29.jpg/960px-Starr-080608-7576-Ficus_benjamina-habit_with_Laysan_albatross-Gym_Sand_Island-Midway_Atoll_%2824823189861%29.jpg','Forest and Kim Starr','CC BY 3.0 US'],
+ ['Olea europaea','Olivo','arbol','Perennifolio','Hojas estrechas, verde grisáceo por el haz y plateadas por el envés. Muy resistente a la sequía y muy longevo: ideal como ejemplar en jardines secos.',W+'c/c2/Olea_europaea%2C_Murviel-l%C3%A8s-B%C3%A9ziers.jpg/960px-Olea_europaea%2C_Murviel-l%C3%A8s-B%C3%A9ziers.jpg','Christian Ferrer','CC BY-SA 4.0'],
+ ['Schinus molle','Falso pimentero','arbol','Perennifolio','Ramas colgantes con hojas compuestas finas y racimos de frutos rosados. Tolera bien la sequía.',W+'5/58/Schinus_Molle.jpg/960px-Schinus_Molle.jpg','Squeezeweasel','CC BY 2.5'],
+ ['Delonix regia','Flamboyán','arbol','Caducifolio o semicaducifolio','Copa ancha en forma de sombrilla y espectacular floración rojo-anaranjada en verano. Necesita clima cálido y espacio.',W+'8/87/Royal_Poinciana.jpg/960px-Royal_Poinciana.jpg','Averette','CC BY-SA 3.0'],
+ ['Jacaranda mimosifolia','Jacaranda','arbol','Semicaducifolio','Hojas muy divididas, como de helecho, y floración azul-violeta en primavera. Muy usado en alineaciones.',W+'c/cb/Jacarand%C3%A1-mimoso_%28do_tupi_%C3%AEakarand%C3%A1%29_-_54942878507_02.jpg/960px-Jacarand%C3%A1-mimoso_%28do_tupi_%C3%AEakarand%C3%A1%29_-_54942878507_02.jpg','O Tupinólogo','CC BY 4.0'],
+ ['Tipuana tipu','Tipuana, palo rosa','arbol','Caducifolio o semicaducifolio','Árbol grande de copa amplia con flores amarillas. Habitual en alineaciones de calles anchas y parques.',W+'2/20/Tipuana_%28tipuana_tipu%29_na_Pra%C3%A7a_da_Matriz%2C_em_Bag%C3%A9-RS.jpg/960px-Tipuana_%28tipuana_tipu%29_na_Pra%C3%A7a_da_Matriz%2C_em_Bag%C3%A9-RS.jpg','Bageense','CC BY-SA 4.0'],
+ ['Tamarix canariensis','Tarajal','arbol','Caducifolio','Hojas diminutas como escamas y flores rosadas en espigas. Soporta suelos salinos y el viento costero. Presente de forma natural en Canarias.',W+'4/44/Tamarix_canariensis_kz5_adj.jpg/960px-Tamarix_canariensis_kz5_adj.jpg','K. Ziarnek, Kenraiz / P. Coxhead','CC BY-SA 4.0'],
+ ['Araucaria heterophylla','Araucaria, pino de Norfolk','conifera','Perennifolio','Porte piramidal muy regular con pisos de ramas horizontales. Típica como ejemplar aislado.',W+'1/10/Norfolk-Island-Pines.jpg/960px-Norfolk-Island-Pines.jpg','thinboyfatter','CC BY 2.0'],
+ ['Cupressus sempervirens','Ciprés común','conifera','Perennifolio','Forma típicamente columnar (aunque los ejemplares silvestres pueden abrirse, como el de la foto). Para setos, bastidores, hileras y avenidas.',W+'d/d0/%CE%95%CE%B8%CE%BD%CE%B9%CE%BA%CF%8C%CF%82_%CE%94%CF%81%CF%85%CE%BC%CF%8C%CF%82_%CE%A3%CE%B1%CE%BC%CE%B1%CF%81%CE%B9%CE%AC%CF%82.jpg/960px-%CE%95%CE%B8%CE%BD%CE%B9%CE%BA%CF%8C%CF%82_%CE%94%CF%81%CF%85%CE%BC%CF%8C%CF%82_%CE%A3%CE%B1%CE%BC%CE%B1%CF%81%CE%B9%CE%AC%CF%82.jpg','Andloukakis','CC BY-SA 4.0'],
+ ['Acalypha wilkesiana','Acalifa','arbusto','Perennifolio','Se cultiva por su follaje de colores cobrizos, rojos o jaspeados más que por sus flores.',W+'f/fa/Acalypha_Flamengueira2.JPG/960px-Acalypha_Flamengueira2.JPG','Antoniocarlosbrasil','CC BY-SA 4.0'],
+ ['Hibiscus rosa-sinensis','Hibisco, cayena','arbusto','Perennifolio','Grandes flores de muchos colores. En clima cálido florece casi todo el año: poda de acortamiento cada unos tres años.',W+'2/21/Hibiscus_Brilliant.jpg/960px-Hibiscus_Brilliant.jpg','Andrew Fogg','CC BY 2.0'],
+ ['Lantana camara','Lantana, banderita española','arbusto','Perennifolio','Flores en ramilletes que cambian de color. Atención: la UICN la incluye entre las 100 especies invasoras más dañinas del mundo; consulta la normativa antes de usarla.',W+'5/52/LantanaFlowerLeaves.jpg/960px-LantanaFlowerLeaves.jpg','Alvesgaspar','CC BY-SA 3.0'],
+ ['Nerium oleander','Adelfa','arbusto','Perennifolio','Muy resistente a la sequía y al calor, con flores rosas, blancas o rojas. Toda la planta es tóxica.',W+'c/cc/Nerium_oleander_flowers_leaves.jpg/960px-Nerium_oleander_flowers_leaves.jpg','Alvesgaspar','CC BY 2.5'],
+ ['Strelitzia reginae','Ave del paraíso','arbusto','Perennifolio','Flor naranja y azul que recuerda la cabeza de un pájaro. Hojas grandes y coriáceas.',W+'9/97/Ave-do-para%C3%ADso%2C_Strelitzia_reginae%2C_em_Bag%C3%A9%2C_Rio_Grande_do_Sul%2C_Brasil_-_55211233712.jpg/960px-Ave-do-para%C3%ADso%2C_Strelitzia_reginae%2C_em_Bag%C3%A9%2C_Rio_Grande_do_Sul%2C_Brasil_-_55211233712.jpg','Gabriel Collares','CC BY 4.0'],
+ ['Caesalpinia gilliesii','Barba de chivo','arbusto','Caducifolio o semicaducifolio','Flores amarillas con largos estambres rojos. Hoy también se clasifica como Erythrostemon gilliesii.',W+'8/8a/Caesalpinia_July_2011-1.jpg/960px-Caesalpinia_July_2011-1.jpg','Alvesgaspar','CC BY-SA 3.0'],
+ ['Plumeria rubra','Frangipani','arbusto','Caducifolio','Ramas gruesas y carnosas, y flores muy perfumadas. Necesita clima cálido.',W+'a/aa/Champa_tree_with_pink_flowers_in_Islamabad%2C_Pakistan.jpg/960px-Champa_tree_with_pink_flowers_in_Islamabad%2C_Pakistan.jpg','Gul Kiyani','CC BY 3.0'],
+ ['Jasminum sp.','Jazmín','trepadora','Perennifolio (según especie)','Flores blancas o amarillas muy perfumadas. En la foto, Jasminum polyanthum.',W+'2/2d/%28MHNT%29_Jasminum_polyanthum_%E2%80%93_flowers_and_buds.jpg/960px-%28MHNT%29_Jasminum_polyanthum_%E2%80%93_flowers_and_buds.jpg','Didier Descouens','CC BY-SA 4.0'],
+ ['Passiflora sp.','Pasionaria, flor de la pasión','trepadora','Perennifolio','Trepa con zarcillos. Flores muy llamativas; algunas especies dan fruta (maracuyá). En la foto, Passiflora caerulea.',W+'9/9a/Passiflora_caerulea_%282019-06-24%29_frontal-view.jpg/960px-Passiflora_caerulea_%282019-06-24%29_frontal-view.jpg','Franz van Duns','CC BY-SA 4.0'],
+ ['Pyrostegia venusta','Flor de fuego, llama','trepadora','Perennifolio','Trepa con zarcillos y cubre muros y pérgolas con flores tubulares naranjas en invierno.',W+'7/77/Pyrostegia_venusta3.JPG/960px-Pyrostegia_venusta3.JPG','B.navez','CC BY-SA 3.0'],
+ ['Bougainvillea sp.','Buganvilla','trepadora','Perennifolio o semicaduco','Lo que vemos de color son brácteas, no pétalos: la flor es la pequeña blanca del centro. Tiene espinas y hay que guiarla y atarla al soporte.',W+'a/ae/Starr_030418-0061_Bougainvillea_spectabilis.jpg/960px-Starr_030418-0061_Bougainvillea_spectabilis.jpg','Forest & Kim Starr','CC BY 3.0']];
+const GN={arbol:'🌳 Árbol',conifera:'🌲 Conífera',arbusto:'🌺 Arbusto',trepadora:'🌿 Trepadora'};
+$('#spGrid').innerHTML=SP.map((s,i)=>`<button class="sp" data-i="${i}" data-g="${s[2]}"><div class="ph"><img src="${s[5]}" alt="${s[0]}" loading="lazy" referrerpolicy="no-referrer"></div><div class="tx"><i>${s[0]}</i><span>${s[1]}</span></div></button>`).join('');
+function openSp(i){const s=SP[i];$('#spModal .box').innerHTML=`<img src="${s[5]}" alt="${s[0]}" referrerpolicy="no-referrer"><div class="in"><span class="pill g">${GN[s[2]]}</span><span class="pill">${s[3]}</span><h3 style="font-style:italic;font-size:1.6rem;margin-top:8px">${s[0]}</h3><p style="font-weight:800;color:var(--muted);margin-top:-6px">${s[1]}</p><p>${s[4]}</p><p class="credit">Foto: ${s[6]} · ${s[7]} · Wikimedia Commons</p></div>`;$('#spModal').classList.add('on')}
+$$('#spGrid .sp').forEach(b=>b.onclick=()=>openSp(+b.dataset.i));
+$('#spModal').onclick=e=>{if(e.target.id==='spModal'||e.target.classList.contains('close'))$('#spModal').classList.remove('on')};
+addEventListener('keydown',e=>{if(e.key==='Escape')$('#spModal').classList.remove('on')});
+segInit('#spSeg',b=>$$('#spGrid .sp').forEach(c=>c.classList.toggle('hide',b.dataset.g!=='all'&&c.dataset.g!==b.dataset.g)));
+
+/* dibujo */
+function tree(x,y,h=120,o={}){const c=o.c||'#3e8e46',f=o.f??1,col=o.leaf??c;let s=`<path d="M${x},${y} L${x},${y-h*.5}" stroke="#6b4a32" stroke-width="${h/14}" stroke-linecap="round"/><path d="M${x},${y-h*.45} l${-h*.18},${-h*.2} M${x},${y-h*.48} l${h*.2},${-h*.22}" stroke="#6b4a32" stroke-width="${h/26}"/>`;
+  if(f>0)s+=`<g opacity="${f}"><circle cx="${x}" cy="${y-h*.72}" r="${h*.3}" fill="${col}"/><circle cx="${x-h*.2}" cy="${y-h*.62}" r="${h*.2}" fill="${col}"/><circle cx="${x+h*.22}" cy="${y-h*.63}" r="${h*.21}" fill="${col}"/></g>`;return s}
+function person(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})" stroke="#1d2b24" stroke-width="2" fill="none"><circle cx="0" cy="-34" r="5" fill="#fff"/><path d="M0,-29 v16 l-5,13 M0,-13 l5,13 M0,-24 l-7,8 M0,-24 l7,8"/></g>`}
+
+/* portada */
+(function(){let o='<rect width="460" height="360" fill="#cfe8f7"/><rect y="270" width="460" height="90" fill="#7aa356"/>';
+ o+=tree(120,280,190,{leaf:'#3e8e46'});o+=`<g>${[0,1,2,3,4].map(i=>`<circle cx="${110+i*18}" cy="${110+(i%2)*14}" r="5" fill="#d9433a"/>`).join('')}</g>`;
+ o+='<ellipse cx="270" cy="262" rx="46" ry="30" fill="#2f7a3b"/>'+[0,1,2,3,4,5].map(i=>`<circle cx="${236+i*13}" cy="${246+(i%2)*10}" r="5" fill="#f5c518"/>`).join('');
+ o+='<rect x="340" y="120" width="8" height="150" fill="#8b6343"/><rect x="420" y="120" width="8" height="150" fill="#8b6343"/><rect x="330" y="112" width="108" height="10" fill="#8b6343"/>';
+ o+='<path d="M344,270 C330,230 360,200 344,160 C330,130 380,118 420,118" stroke="#3e8e46" stroke-width="4" fill="none"/>'+[[344,230],[350,190],[360,140],[400,120],[338,160]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="10" fill="#d61a7f"/>`).join('');
+ o+='<text x="120" y="310" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">árbol</text><text x="270" y="310" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">arbusto</text><text x="385" y="310" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">trepadora</text>';
+ $('#heroSvg').innerHTML=o})();
+
+/* hojas */
+(function(){let k='p';const SE=['Primavera','Verano','Otoño','Invierno'];
+ function draw(){const s=+$('#sSeason').value;$('#vSeason').textContent=SE[s];let o=`<rect width="480" height="300" fill="${s===3?'#e8eef3':'#e3f2fb'}"/><rect y="250" width="480" height="50" fill="#9b7a54"/>`;let leaf='#3e8e46',f=1,fall=0;
+  if(k==='c'){leaf=['#6fbf4a','#3e8e46','#d98c2b','#3e8e46'][s];f=s===3?0:1;fall=s===2?1:0}
+  if(k==='m'){leaf=['#6fbf4a','#3e8e46','#c97a2b','#9b6b43'][s]}
+  o+=tree(240,255,220,{leaf,f});
+  if(fall)for(let i=0;i<14;i++)o+=`<path d="M${150+i*14},${120+(i%5)*20} q4,-4 8,0 q-4,4 -8,0" fill="#d98c2b"><animateTransform attributeName="transform" type="translate" from="0 0" to="${(i%3-1)*20} ${150-(i%5)*20}" dur="${2+i%3}s" repeatCount="indefinite"/></path>`;
+  if(k==='c'&&s===3)o+='<text x="240" y="40" text-anchor="middle" font-size="14" font-weight="800">sin hojas</text>';
+  $('#leafSvg').innerHTML=o;
+  $('#leafTxt').innerHTML={p:'🌿 <b>Perennifolio</b>: conserva hojas todo el año (las renueva poco a poco). Ej.: olivo, ficus.',c:'🍂 <b>Caducifolio</b>: pierde todas las hojas en la estación desfavorable. Ej.: tarajal, frangipani.',m:'🍁 <b>Marcescente o semicaduco</b>: las hojas se secan en la planta sin desprenderse.'}[k]}
+ segInit('#leafSeg',b=>{k=b.dataset.k;draw()});$('#sSeason').addEventListener('input',draw);draw();
+ function size(i){let o='<rect width="480" height="220" fill="#e3f2fb"/><rect y="195" width="480" height="25" fill="#9b7a54"/>';
+  o+=`<rect x="360" y="75" width="90" height="120" fill="#fff" stroke="#555"/>`+[0,1,2,3].map(r=>[0,1].map(c=>`<rect x="${372+c*40}" y="${85+r*28}" width="22" height="16" fill="#cfe8f7" stroke="#999"/>`).join('')).join('');
+  const H=[70,130,185][i];o+=tree(180,195,H)+person(270,195,1.1)+`<text x="285" y="190" font-size="11" font-weight="800">1,7 m</text>`;$('#sizeSvg').innerHTML=o;
+  $('#sizeTxt').textContent=['Pequeños jardines, cultivo en contenedor y alineaciones en calles estrechas.','Jardines amplios y alineaciones.','Parques: necesitan mucho espacio.'][i]}
+ segInit('#sizeSeg',b=>size(+b.dataset.k));size(0);
+ const CR=[['Redondeada','<circle cx="0" cy="-70" r="34" fill="#3e8e46"/>','Copa globosa, como el ficus o el olivo.'],['Columnar','<rect x="-14" y="-130" width="28" height="110" rx="14" fill="#2f6b3a"/>','Estrecha y alta, como el ciprés: setos y avenidas.'],['Piramidal','<path d="M0,-135 L32,-25 L-32,-25Z" fill="#2f6b3a"/>','Cónica, como la araucaria: ejemplar aislado.'],['Aparasolada','<ellipse cx="0" cy="-70" rx="52" ry="20" fill="#3e8e46"/>','Ancha y plana, como el flamboyán: mucha sombra.'],['Llorona','<path d="M-40,-30 Q-46,-90 0,-95 Q46,-90 40,-30" fill="#5aa04a"/>','Ramas colgantes, como el falso pimentero.']];
+ function crown(k){let o='<rect width="480" height="200" fill="#fff"/>';CR.forEach((c,i)=>{const x=50+i*95;o+=`<g transform="translate(${x},180)" style="cursor:pointer" data-i="${i}" opacity="${i===k?1:.45}"><path d="M0,0 V-30" stroke="#6b4a32" stroke-width="6"/>${c[1]}<text y="16" text-anchor="middle" font-size="11" font-weight="800">${c[0]}</text></g>`});$('#crownSvg').innerHTML=o;$('#crownTxt').textContent=CR[k][2];$$('#crownSvg g[data-i]').forEach(g=>g.onclick=()=>crown(+g.dataset.i))}
+ crown(0)})();
+
+/* suministro */
+(function(){const S=[
+ ['Raíz desnuda','<path d="M50,20 V70" stroke="#6b4a32" stroke-width="6"/><path d="M50,70 l-20,22 M50,70 l18,24 M50,72 l-4,26 M50,70 l-28,10 M50,70 l26,8" stroke="#8b6343" stroke-width="3"/><circle cx="50" cy="16" r="14" fill="#3e8e46" opacity=".5"/>','Sistema radicular <b>bien ramificado</b>, no excesivamente podado, <b>sin síntomas de deshidratación</b>, y la copa aclarada para mantener el <b>equilibrio entre la parte aérea y la subterránea</b>. Se preparan y suministran en <b>parada vegetativa</b>, cuando no han brotado (salvo <i>Melia azedarach</i>). Al plantar llevan <b>tutor</b>.'],
+ ['Cepellón','<path d="M50,20 V60" stroke="#6b4a32" stroke-width="6"/><ellipse cx="50" cy="78" rx="30" ry="20" fill="#9b7a54"/><path d="M22,72 q28,18 56,0 M24,84 q26,12 52,0" stroke="#d8c39a" stroke-width="2" fill="none"/><circle cx="50" cy="16" r="16" fill="#3e8e46"/>','Raíces con su tierra. Los materiales que protegen o atan el cepellón deben <b>descomponerse antes de año y medio</b> tras la plantación sin afectar al crecimiento del árbol. No es recomendable un cepellón con alguna <b>raíz seccionada de más de 3 cm</b> en su periferia. Puede ir <b>escayolado</b>: al plantar basta con picar la escayola y abrir huecos para que salgan las raíces.'],
+ ['Contenedor','<path d="M50,20 V58" stroke="#6b4a32" stroke-width="6"/><path d="M26,58 h48 l-6,40 h-36z" fill="#2f3438"/><circle cx="50" cy="16" r="16" fill="#3e8e46"/>','Debe llevar en el contenedor el tiempo suficiente para que las raíces nuevas formen una masa que <b>mantenga su forma y se aguante compacta</b> al sacarla. Hay que cambiarlo a un contenedor mayor <b>antes de que las raíces se espiralicen</b>.']];
+ $('#supSeg').innerHTML=S.map((s,i)=>`<button data-i="${i}" class="${i?'':'on'}"><svg viewBox="0 0 100 100">${s[1]}</svg>${s[0]}</button>`).join('');
+ function show(i){$('#supTxt').innerHTML=`<h3>${S[i][0]}</h3><p style="margin:0">${S[i][2]}</p>`}
+ segInit('#supSeg',b=>show(+b.dataset.i));show(0);
+ const QC=[['Árbol a raíz desnuda con raíces resecas y arrugadas',0,'Síntomas de deshidratación: se rechaza.'],['Cepellón atado con malla de yute que se descompone en un año',1,'Material que se descompone antes de año y medio: correcto.'],['Cepellón con una raíz cortada de 5 cm de diámetro en el borde',0,'Raíz seccionada de más de 3 cm: no recomendable.'],['Contenedor cuyas raíces dan vueltas en espiral',0,'Debió trasplantarse antes de espiralizarse.'],['Contenedor con masa de raíces compacta que mantiene la forma',1,'Señal de buen cultivo en contenedor.'],['Árbol a raíz desnuda ya brotado en primavera',0,'Debe suministrarse en parada vegetativa, sin brotar.']];
+ let ok=0,done=0;$('#qc').innerHTML=QC.map((q,i)=>`<button data-i="${i}" style="cursor:default"><span style="flex:1">${q[0]}</span><span class="row" style="gap:4px"><span class="btn sm" data-a="1" style="cursor:pointer">✔</span><span class="btn sm k" data-a="0" style="cursor:pointer">✘</span></span></button>`).join('');
+ $$('#qc button').forEach(b=>$$('[data-a]',b).forEach(a=>a.onclick=e=>{e.stopPropagation();if(b.dataset.done)return;const q=QC[+b.dataset.i],good=+a.dataset.a===q[1];b.dataset.done=1;done++;if(good)ok++;b.classList.add(good?'ok':'ko');b.querySelector('span').innerHTML+=`<br><span style="font-weight:600;font-size:.85rem;color:var(--muted)">${good?'✅':'❌'} ${q[2]}</span>`;$('#qcFb').innerHTML=done<QC.length?`Llevas ${ok} de ${done}.`:`🏁 ${ok} de ${QC.length} decisiones correctas.`}))})();
+
+/* épocas */
+(function(){const M=['E','F','M','A','M','J','J','A','S','O','N','D'];const R=[['Árboles y arbustos',[8,9,10,11,0,1,2,3],'Savia parada: de septiembre a abril.'],['Plantas de flor, bulbos y tubérculos',[0,1,2,3,4,5,6,7,8,9,10,11],'Todo el año, según la variedad y el clima.'],['Plantas acuáticas',[3,4,5,6],'De abril a julio, evitando el frío.'],['Palmáceas',[5,6,7,8],'Lo más caluroso, de junio a septiembre: enraízan rápido.']];let sel=10;
+ function draw(){let o='<div></div>'+M.map((m,i)=>`<div class="m" data-m="${i}" style="cursor:pointer">${m}</div>`).join('');R.forEach(r=>{o+=`<div>${r[0]}</div>`+M.map((m,i)=>`<div class="c ${r[1].includes(i)?'on':''} ${i===sel?'sel':''}" data-m="${i}" style="cursor:pointer"></div>`).join('')});$('#cal').innerHTML=o;$$('#cal [data-m]').forEach(c=>c.onclick=()=>{sel=+c.dataset.m;draw()});
+  const N=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][sel];const yes=R.filter(r=>r[1].includes(sel));
+  $('#calTxt').innerHTML=`<h3>En ${N} puedes plantar:</h3><ul style="margin:0;padding-left:20px">${yes.map(r=>`<li><b>${r[0]}</b>: ${r[2]}</li>`).join('')}</ul>`}
+ draw()})();
+
+/* simulador plantación */
+(function(){const ST=['Abrir el hoyo','Preparar el fondo','Colocar el árbol','Orientar','Retirar protección','Rellenar','Entutorar','Poceta','Riego'];
+ let st=0,soil=null,depth=0,rot=0,side=0,removed=false,fill=0,tutor=false,mix=null,errs=0,root='cepellon';
+ function svg(){let o='<rect width="520" height="420" fill="#e3f2fb"/><rect y="170" width="520" height="250" fill="#9b7a54"/>';const hx=260,hw=st>=1||soil?(soil==='mala'?220:150):0,hd=soil==='mala'?150:110;
+  if(st===0&&!soil)o+='<text x="260" y="140" text-anchor="middle" font-size="14" font-weight="800">¿Cómo es el suelo?</text>';
+  if(hw){o+=`<rect x="${hx-hw/2}" y="170" width="${hw}" height="${hd}" fill="#5e4430"/>`;if(st>=1)o+=`<rect x="${hx-hw/2}" y="${170+hd-18}" width="${hw}" height="18" fill="#b8b0a2"/>`+[...Array(14)].map((_,i)=>`<circle cx="${hx-hw/2+8+i*hw/14}" cy="${170+hd-9}" r="4" fill="#d6d0c4"/>`).join('')}
+  if(st>=2){const y=170+depth;const bx=hx;o+=`<g transform="rotate(${rot} ${bx} ${y})">`;
+   if(fill>0)o+=`<rect x="${hx-hw/2}" y="${170+hd-18-fill*(hd-18)}" width="${hw}" height="${fill*(hd-18)}" fill="${mix==='ok'?'#6b4a32':'#8a6a4a'}" opacity=".95"/>`;
+   o+=`<ellipse cx="${bx}" cy="${y+38}" rx="48" ry="36" fill="${removed?'#7a5638':'#c9b28f'}" stroke="${removed?'none':'#8a7a5a'}" stroke-width="3" stroke-dasharray="${removed?'':'6 4'}"/>`;
+   o+=`<path d="M${bx},${y} V${y-95}" stroke="#6b4a32" stroke-width="12"/><circle cx="${bx-12}" cy="${y-120}" r="42" fill="#3e8e46"/><circle cx="${bx+34}" cy="${y-110}" r="22" fill="#6fbf4a" opacity=".6"/>`;o+='</g>';
+   o+=`<path d="M60,170 H460" stroke="#1d2b24" stroke-dasharray="4 4"/><text x="64" y="164" font-size="10" font-weight="800">nivel del suelo</text>`;
+   if(st===3||st>3){const A=[90,180,225,270,0][side];o+=`<g transform="translate(455,62)"><circle r="40" fill="#fff" stroke="#555"/>${[['N',0],['E',90],['S',180],['O',270]].map(([t,a])=>`<text x="${32*Math.sin(a*Math.PI/180)}" y="${-32*Math.cos(a*Math.PI/180)+4}" text-anchor="middle" font-size="11" font-weight="800">${t}</text>`).join('')}<text x="${-24}" y="${28}" text-anchor="middle" font-size="9" font-weight="800" fill="#d9433a">SO</text><g transform="rotate(${A})"><path d="M0,0 V-24" stroke="#6fbf4a" stroke-width="5"/><path d="M-6,-20 L0,-30 L6,-20Z" fill="#6fbf4a"/></g><circle r="4" fill="#1d2b24"/></g><text x="455" y="118" text-anchor="middle" font-size="9" font-weight="800">parte menos frondosa</text>`}}
+  if(tutor)o+=`<rect x="${hx+30}" y="40" width="7" height="${130+hd}" fill="#a07e5c"/><path d="M${hx+4},120 h28 M${hx+4},80 h28" stroke="#f5c518" stroke-width="4"/>`;
+  if(st>=8)o+=`<path d="M${hx-90},170 q-10,-14 0,-14 h180 q10,0 0,14" fill="none" stroke="#6b4a32" stroke-width="8"/>`;
+  if(st>=9)o+=`<rect x="${hx-90}" y="158" width="180" height="12" fill="#1e88d0" opacity=".5"/>`+[0,1,2,3,4].map(i=>`<path d="M${hx-60+i*30},40 l-4,14" stroke="#1e88d0" stroke-width="2"/>`).join('');
+  $('#plSvg').innerHTML=o}
+ function bar(){$('#plBar').innerHTML=ST.map((s,i)=>`<span class="${i<st?'done':i===st?'cur':''}" title="${s}"></span>`).join('')}
+ function fb(t,ok=true){$('#plFb').innerHTML=(ok?'':'')+t}
+ function ui(){bar();svg();const c=$('#plCtrl');$('#plStep').innerHTML=st<9?`<div class="n">Paso ${st+1} de 9 · ${ST[st]}</div>`:'<div class="n">¡Plantación terminada!</div>';
+  if(st===0){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">El suelo del jardín es pobre y pedregoso. ¿Qué hoyo abres?</div>';c.innerHTML='<div class="chkrow"><button data-o="buena">Algo mayor que el cepellón</button><button data-o="mala">Con las dimensiones establecidas según la altura del árbol y el tipo de suministro</button></div>';
+   $$('button',c).forEach(b=>b.onclick=()=>{if(b.dataset.o==='mala'){soil='mala';fb('✅ Con suelo de mala calidad se abre el hoyo con las dimensiones establecidas según la altura del árbol y si va en cepellón, escayolado o a raíz desnuda. Si el suelo fuera excelente, bastaría un hoyo algo mayor que el cepellón.');st=1;ui()}else{errs++;fb('❌ Eso vale solo si el suelo es de excelente calidad.')}})}
+  else if(st===1){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">¿Qué haces con el fondo del hoyo?</div>';c.innerHTML='<div class="chkrow"><button data-o="1">Picar el fondo y echar una capa de gravilla</button><button data-o="0">Echar abono puro en el fondo</button><button data-o="0">Compactarlo bien con el pisón</button></div>';
+   $$('button',c).forEach(b=>b.onclick=()=>{if(b.dataset.o==='1'){fb('✅ Picar el fondo y añadir gravilla facilita el drenaje.');st=2;depth=-40;ui()}else{errs++;b.classList.add('ko');fb('❌ No. El fondo se pica y se pone gravilla para drenar.')}})}
+  else if(st===2){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">Ajusta la altura: el cuello de la raíz debe quedar a nivel del suelo.</div>';c.innerHTML='<label class="f">Altura del cepellón</label><input type="range" id="sDep" min="-60" max="60" value="-40"><button class="btn" id="dOk" style="margin-top:8px">Fijar altura</button>';
+   $('#sDep').oninput=e=>{depth=+e.target.value;svg()};$('#dOk').onclick=()=>{if(Math.abs(depth)<=6){depth=0;fb('✅ Cuello a nivel del suelo.');st=3;ui()}else{errs++;fb(depth<0?'❌ Queda demasiado alto: el cuello debe quedar a nivel del suelo.':'❌ Queda enterrado: el cuello se pudriría. Súbelo.')}}}
+  else if(st===3){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">Gira el árbol: la parte <b>menos frondosa</b> (la de la derecha, más clara) debe mirar al <b>Suroeste</b>.</div>';c.innerHTML='<div class="row"><button class="btn b sm" id="rl">↺ Girar</button><button class="btn b sm" id="rr">↻ Girar</button><button class="btn" id="rOk">Así está bien</button></div>';
+   side=0;const SIDES=['Este','Sur','Suroeste','Oeste','Norte'];$('#rl').onclick=()=>{side=(side+4)%5;svg();fb('La parte menos frondosa mira al '+SIDES[side]+'.')};$('#rr').onclick=()=>{side=(side+1)%5;svg();fb('La parte menos frondosa mira al '+SIDES[side]+'.')};
+   $('#rOk').onclick=()=>{if(SIDES[side]==='Suroeste'){fb('✅ Así recibe la máxima iluminación y se desarrollan las ramas más débiles.');st=4;ui()}else{errs++;fb('❌ Debe mirar al Suroeste para recibir la máxima luz.')}};fb('La parte menos frondosa mira al Este.')}
+  else if(st===4){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">El cepellón viene escayolado. ¿Qué haces?</div>';c.innerHTML='<div class="chkrow"><button data-o="1">Picar la escayola y abrir huecos para las raíces</button><button data-o="0">Dejarla entera, ya se romperá</button><button data-o="0">Romper el cepellón para soltar todas las raíces</button></div>';
+   $$('button',c).forEach(b=>b.onclick=()=>{if(b.dataset.o==='1'){removed=true;fb('✅ Con escayola basta picarla y abrir espacios para que salgan las raíces. Otras protecciones se retiran.');st=5;ui()}else{errs++;b.classList.add('ko');fb('❌ No es lo indicado.')}})}
+  else if(st===5){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">Prepara la mezcla de relleno.</div>';c.innerHTML='<div class="chkrow"><button data-o="ok">Partes iguales de tierra, turba o mantillo y arena gruesa + 20-30 g de abono complejo por cada 10 l</button><button data-o="no">Solo arena de playa</button><button data-o="no">Tierra con 300 g de abono por cada 10 l</button></div><label class="f">¿Cuántos litros de mezcla vas a usar?</label><input type="number" id="lit" value="200" min="10" step="10"><div id="abono" style="font-weight:700;margin-top:6px"></div>';
+   const ab=()=>{const l=+$('#lit').value||0;$('#abono').textContent=`Abono complejo: entre ${l*2} y ${l*3} g para ${l} litros.`};$('#lit').oninput=ab;ab();
+   $$('.chkrow button',c).forEach(b=>b.onclick=()=>{if(b.dataset.o==='ok'){mix='ok';fb('✅ Se rellena apretando con los pies a medida que se va echando, <b>excepto los últimos centímetros</b>.');let k=0;const t=setInterval(()=>{fill=Math.min(1,fill+.1);svg();if(fill>=1){clearInterval(t);st=6;ui()}},reduce?1:120)}else{errs++;b.classList.add('ko');fb('❌ Esa mezcla no es la recomendada.')}})}
+  else if(st===6){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">Entutorado: ¿cuándo y cómo?</div>';c.innerHTML='<div class="chkrow"><button data-o="1">Estaca de madera tratada con sulfato de cobre al 2 %, clavada en el fondo antes de plantar, y ligaduras que no estrangulen ni rocen</button><button data-o="0">Un alambre fino bien apretado al tronco</button><button data-o="0">Una estaca sin tratar atada con cuerda de plástico muy ceñida</button></div><p style="font-size:.85rem;color:var(--muted)">Nota de los apuntes: el tutor se coloca sobre todo cuando el árbol se planta <b>a raíz desnuda</b>; se clava antes de plantar. También puede ser un tubo de hierro galvanizado.</p>';
+   $$('.chkrow button',c).forEach(b=>b.onclick=()=>{if(b.dataset.o==='1'){tutor=true;fb('✅ El tutor inmoviliza el árbol y favorece el enraizamiento. El sulfato de cobre evita que la madera se pudra.');st=7;ui()}else{errs++;b.classList.add('ko');fb('❌ Las ligaduras no deben estrangular ni rozar: acabarían dañando o partiendo el tronco.')}})}
+  else if(st===7){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">Construye la poceta alrededor del tronco.</div>';c.innerHTML='<button class="btn" id="poc">🪣 Hacer la poceta</button>';$('#poc').onclick=()=>{st=8;fb('✅ La poceta recoge el agua de riego alrededor del tronco.');ui()}}
+  else if(st===8){$('#plStep').innerHTML+='<div style="font-weight:700;margin-top:4px">Primer riego.</div>';c.innerHTML='<div class="chkrow"><button data-o="1">Riego abundante</button><button data-o="0">Un vaso de agua para no encharcar</button></div>';
+   $$('.chkrow button',c).forEach(b=>b.onclick=()=>{if(b.dataset.o==='1'){st=9;fb(`✅ Un riego abundante cubre las necesidades del árbol y <b>asienta la tierra</b> del relleno.<br><br>🏆 <b>¡Árbol plantado!</b> Errores: ${errs}.`);ui()}else{errs++;b.classList.add('ko');fb('❌ El primer riego debe ser abundante para asentar la tierra.')}})}
+  else c.innerHTML=''}
+ $('#plReset').onclick=()=>{st=0;side=0;soil=null;depth=0;rot=0;removed=false;fill=0;tutor=false;mix=null;errs=0;fb('');ui()};ui()})();
+
+/* coníferas */
+(function(){const U=[['Ejemplar aislado','Araucaria, Pinus, Abies, Cedrus','iso'],['Bosquetes','Pinus','bos'],['Grupos de altura diversa','Cryptomeria, Podocarpus, Juniperus sabina','gru'],['Setos o bastidores','Thuja, Taxus, Cupressus','set'],['Hileras o avenidas','Cupressus, Pinus, Cedrus, Araucaria','hil'],['Tapizantes','Juniperus horizontalis','tap']];
+ $('#uses').innerHTML=U.map((u,i)=>`<button data-i="${i}" class="${i?'':'on'}"><b>${u[0]}</b><i style="font-size:.85rem">${u[1]}</i></button>`).join('');
+ const con=(x,y,h,c='#2f6b3a')=>`<path d="M${x},${y-h} L${x+h*.22},${y} L${x-h*.22},${y}Z" fill="${c}"/><rect x="${x-3}" y="${y}" width="6" height="8" fill="#6b4a32"/>`;
+ const col=(x,y,h)=>`<rect x="${x-h*.09}" y="${y-h}" width="${h*.18}" height="${h}" rx="${h*.09}" fill="#2f5a34"/>`;
+ function draw(i){let o='<rect width="480" height="280" fill="#e3f2fb"/><rect y="240" width="480" height="40" fill="#7aa356"/>';const k=U[i][2];
+  if(k==='iso')o+=con(240,240,200);
+  if(k==='bos')[[150,180],[200,160],[250,190],[300,170],[230,140],[340,150]].forEach(([x,h])=>o+=con(x,240,h));
+  if(k==='gru')o+=con(160,240,190)+con(240,240,120)+`<ellipse cx="320" cy="232" rx="50" ry="14" fill="#4d7a3a"/>`+con(380,240,80);
+  if(k==='set')for(let x=60;x<440;x+=26)o+=col(x,240,110);
+  if(k==='hil'){o+='<path d="M240,240 L200,100 L280,100Z" fill="#c9b28f" opacity=".7"/>';for(let i=0;i<6;i++){const t=i/6,y=240-t*130,sc=1-t*.7;o+=col(160+t*60,y,140*sc)+col(320-t*60,y,140*sc)}}
+  if(k==='tap')o+='<path d="M40,240 q100,-30 200,-6 t200,0 V250 H40Z" fill="#4a7d4a"/>'+[...Array(20)].map((_,j)=>`<path d="M${50+j*19},236 l6,-10 l6,10" fill="#3a6b3a"/>`).join('');
+  $('#useSvg').innerHTML=o;$('#useTxt').innerHTML=`${U[i][0]}: <i>${U[i][1]}</i>`}
+ segInit('#uses',b=>draw(+b.dataset.i));draw(0)})();
+
+/* poda */
+(function(){const B=[{t:'chupon',x1:240,y1:300,x2:250,y2:60,c:'#7a5a3a',l:'Chupón'},{t:'enferma',x1:200,y1:250,x2:120,y2:150,c:'#555',l:'Rama enferma'},{t:'cruza',x1:290,y1:250,x2:180,y2:140,c:'#7a5a3a',l:'Se cruza'},{t:'flor',x1:270,y1:220,x2:350,y2:120,c:'#7a5a3a',l:'Ramilla con flor'},{t:'ok',x1:220,y1:260,x2:190,y2:120,c:'#7a5a3a'},{t:'ok',x1:260,y1:260,x2:320,y2:170,c:'#7a5a3a'}];
+ const cut=new Set();
+ function draw(){let o='<rect width="480" height="320" fill="#fff"/><rect y="296" width="480" height="24" fill="#9b7a54"/>';
+  B.forEach((b,i)=>{const done=cut.has(i);if(b.t==='flor'&&done){const mx=(b.x1+b.x2)/2,my=(b.y1+b.y2)/2;o+=`<path d="M${b.x1},${b.y1} L${mx},${my}" stroke="${b.c}" stroke-width="7"/><text x="${mx+6}" y="${my}" font-size="16">✂️</text>`;return}
+   if(done){o+=`<text x="${b.x1-8}" y="${b.y1}" font-size="16">✂️</text>`;return}
+   o+=`<g data-i="${i}" style="cursor:pointer"><path d="M${b.x1},${b.y1} L${b.x2},${b.y2}" stroke="transparent" stroke-width="22"/><path d="M${b.x1},${b.y1} L${b.x2},${b.y2}" stroke="${b.c}" stroke-width="7" stroke-linecap="round"/>`;
+   if(b.t==='enferma')o+=[0.3,.5,.7].map(t=>`<circle cx="${b.x1+(b.x2-b.x1)*t}" cy="${b.y1+(b.y2-b.y1)*t}" r="6" fill="#1d1a10"/>`).join('');
+   if(b.t!=='chupon'&&b.t!=='enferma')o+=`<circle cx="${b.x2}" cy="${b.y2}" r="22" fill="#3e8e46" opacity=".8"/>`;
+   if(b.t==='flor')o+=`<circle cx="${b.x2}" cy="${b.y2}" r="9" fill="#d61a7f"/>`;
+   o+='</g>'});
+  $('#pruneSvg').innerHTML=o;$$('#pruneSvg g[data-i]').forEach(g=>g.onclick=()=>{const i=+g.dataset.i,b=B[i];if(b.t==='ok'){$('#pruneFb').innerHTML='❌ Esa rama está sana y bien orientada: se deja.';return}cut.add(i);$('#pruneFb').innerHTML={chupon:'✅ Chupón: rama vigorosa que roba savia y no florece.',enferma:'✅ Rama enferma: se elimina.',cruza:'✅ Rama que se cruza: roza y estorba a las demás.',flor:'✅ Se acorta la ramilla que porta la flor para que no se alargue y dé reemplazos que florecerán el año próximo.'}[b.t]+(cut.size===4?' 🏆 ¡Poda completa!':'');draw()})}
+ draw();
+ const F=['Se podan <b>inmediatamente después de la floración</b>.','Se podan en <b>invierno o en otoño</b>.','Poda de <b>acortamiento cada tres años aproximadamente</b>.','Hay que podarlos <b>varias veces</b> al año.'];
+ segInit('#flSeg',b=>$('#flTxt').innerHTML=F[+b.dataset.k])})();
+
+/* trepadoras */
+(function(){const T=SP.filter(s=>s[2]==='trepadora');let cur=3;const COL=['#ffffff','#7b5bb5','#f08a24','#d61a7f'];
+ $('#climbSeg').innerHTML=T.map((t,i)=>`<button data-i="${i}" class="${i===cur?'on':''}"><i>${t[0]}</i></button>`).join('');
+ function draw(){const m=+$('#sClimb').value;$('#vClimb').textContent=m;const g=Math.min(1,m/18);let o='<rect width="480" height="300" fill="#e3f2fb"/><rect y="270" width="480" height="30" fill="#9b7a54"/>';
+  o+='<rect x="90" y="80" width="12" height="190" fill="#8b6343"/><rect x="380" y="80" width="12" height="190" fill="#8b6343"/><rect x="70" y="70" width="340" height="14" fill="#8b6343"/>';for(let x=110;x<380;x+=30)o+=`<rect x="${x}" y="62" width="8" height="30" fill="#a07e5c"/>`;
+  const pts=[[96,270],[96,230],[100,190],[94,150],[98,110],[110,80],[160,72],[220,76],[280,70],[340,76],[386,90],[386,140]];const n=Math.max(1,Math.round(g*(pts.length-1)));
+  o+=`<path d="M${pts.slice(0,n+1).map(p=>p.join(',')).join(' L')}" stroke="#3e8e46" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  pts.slice(1,n+1).forEach(([x,y],i)=>{o+=`<ellipse cx="${x+8}" cy="${y-4}" rx="10" ry="6" fill="#5aa04a"/>`;if(m>8&&i%2===0)o+=`<circle cx="${x-6}" cy="${y+6}" r="7" fill="${COL[cur]}" stroke="#0002"/>`});
+  $('#climbSvg').innerHTML=o;const t=T[cur];$('#climbTxt').innerHTML=`<img src="${t[5]}" alt="${t[0]}" referrerpolicy="no-referrer" style="width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:12px"><h3 style="font-style:italic;margin-top:10px">${t[0]}</h3><p style="font-weight:800;color:var(--muted);margin-top:-6px">${t[1]}</p><p style="margin:0">${t[4]}</p>`}
+ segInit('#climbSeg',b=>{cur=+b.dataset.i;draw()});$('#sClimb').addEventListener('input',draw);draw()})();
+
+/* juego identificar */
+(function(){let order=[],i=0,sc=0;const r=rng(Date.now()%9999);
+ function start(){order=SP.map((_,k)=>[k,r()]).sort((a,b)=>a[1]-b[1]).map(a=>a[0]).slice(0,10);i=0;sc=0;show()}
+ function show(){if(i>=order.length){$('#idCount').textContent='';$('#idOpts').innerHTML='';$('#idFb').innerHTML=`<div class="score">${sc}/${order.length}</div><button class="btn" id="idAgain">↺ Otra ronda</button>`;$('#idAgain').onclick=start;return}
+  const k=order[i],s=SP[k];$('#idImg').src=s[5];$('#idCount').textContent=`Foto ${i+1} de ${order.length} · Aciertos: ${sc}`;
+  const same=SP.map((_,j)=>j).filter(j=>j!==k);const d=same.sort(()=>r()-.5).slice(0,3);const opts=[k,...d].sort(()=>r()-.5);
+  $('#idOpts').innerHTML=opts.map(j=>`<button data-j="${j}">${SP[j][0]}</button>`).join('');$('#idFb').innerHTML='';
+  $$('#idOpts button').forEach(b=>b.onclick=()=>{const ok=+b.dataset.j===k;if(ok)sc++;$$('#idOpts button').forEach(x=>{x.disabled=true;if(+x.dataset.j===k)x.classList.add('ok')});if(!ok)b.classList.add('ko');$('#idFb').innerHTML=`${ok?'✅':'❌'} <b><i>${s[0]}</i></b> · ${s[1]} (${GN[s[2]]})<div style="margin-top:8px"><button class="btn b sm" id="idNext">Siguiente →</button></div>`;$('#idNext').onclick=()=>{i++;show()}})}
+ start()})();
+
+/* quiz */
+const Q=[
+ {q:'En jardinería, un árbol es un vegetal de tronco leñoso, ramificado y de más de…',o:['1 m','2 m','5 m','10 m'],a:1,e:'Los arbustos, en cambio, se ramifican desde el suelo y no suelen pasar de 3 m.'},
+ {q:'Un árbol cuyas hojas se secan en la planta sin desprenderse es…',o:['Perennifolio','Caducifolio','Marcescente','Conífera'],a:2,e:'También se llama semicaduco.'},
+ {q:'¿Qué raíz seccionada no es recomendable en la periferia de un cepellón?',o:['Mayor de 3 cm de diámetro','Mayor de 3 mm','Cualquier raíz','Mayor de 30 cm'],a:0,e:'Y los materiales de protección deben descomponerse antes de año y medio.'},
+ {q:'¿Cuándo hay que cambiar un árbol de contenedor?',o:['Cuando florece','Antes de que las raíces se espiralicen','Cuando pierde las hojas','Nunca'],a:1,e:'La masa de raíces debe mantener su forma al sacarla.'},
+ {q:'¿Qué árbol es la excepción en el suministro a raíz desnuda en parada vegetativa?',o:['Olea europaea','Melia azedarach','Ficus benjamina','Tipuana tipu'],a:1,e:'Los demás se suministran en parada vegetativa, cuando no han brotado.'},
+ {q:'La mejor época para plantar palmeras es…',o:['Invierno','De septiembre a abril','La más calurosa, de junio a septiembre','Solo en abril'],a:2,e:'Así enraízan rápidamente.'},
+ {q:'Las plantas acuáticas se plantan…',o:['De abril a julio','En invierno','Todo el año','Solo en agosto'],a:0,e:'Evitando los periodos fríos.'},
+ {q:'¿Qué se pone en el fondo del hoyo, después de picarlo?',o:['Abono puro','Gravilla','Cemento','Nada'],a:1,e:'Facilita el drenaje.'},
+ {q:'El árbol se coloca con el cuello…',o:['10 cm enterrado','A nivel del suelo','20 cm por encima','Da igual'],a:1,e:'Enterrado se pudre; demasiado alto, se secan las raíces.'},
+ {q:'La parte menos frondosa del árbol se orienta hacia el…',o:['Norte','Este','Suroeste','Noreste'],a:2,e:'Recibe la máxima luz y se refuerzan las ramas débiles.'},
+ {q:'¿Cuánto abono complejo se añade a la mezcla de relleno?',o:['20-30 g por cada 10 l','200 g por cada litro','1 kg por hoyo','Nada'],a:0,e:'Mezcla: tierra, turba o mantillo y arena gruesa a partes iguales.'},
+ {q:'La estaca del tutor se trata con…',o:['Sulfato de cobre al 2 %','Lejía','Aceite de motor','Agua'],a:0,e:'Evita la putrefacción. Se clava antes de plantar.'},
+ {q:'¿Para qué sirve la poceta?',o:['Para decorar','Para recoger el agua de riego','Para sujetar el tutor','Para el abono'],a:1,e:'Después se da un riego abundante que asienta la tierra.'},
+ {q:'¿Qué conífera se usa como tapizante?',o:['Cupressus sempervirens','Araucaria heterophylla','Juniperus horizontalis','Cedrus'],a:2,e:'Para setos: Thuja, Taxus, Cupressus.'},
+ {q:'Un arbusto que florece en invierno se poda…',o:['Justo después de florecer','En verano antes de florecer','Nunca','Cada mes'],a:0,e:'Los que florecen al final de primavera o en verano, en invierno u otoño.'},
+ {q:'¿Cuál de estas especies es una trepadora?',o:['Nerium oleander','Pyrostegia venusta','Delonix regia','Strelitzia reginae'],a:1,e:'Las trepadoras de la unidad: Jasminum, Passiflora, Pyrostegia y Bougainvillea.'},
+ {q:'¿Qué especie es una conífera?',o:['Casuarina equisetifolia','Araucaria heterophylla','Tamarix canariensis','Schinus molle'],a:1,e:'¡Cuidado! La casuarina parece un pino, pero no es una conífera.'},
+ {q:'Las partes de color de la buganvilla son…',o:['Pétalos','Brácteas','Hojas secas','Frutos'],a:1,e:'La flor verdadera es la pequeña blanca del centro.'}];
+let qi=0,sc=0;
+function renderQ(){const box=$('#quizBox');
+ if(qi>=Q.length){box.innerHTML=`<div class="score">${sc} / ${Q.length}</div><p style="text-align:center;font-size:1.1rem">${sc>=15?'🏆 ¡Listo para el examen!':sc>=11?'🌱 ¡Muy bien! Repasa los fallos.':'📚 Vuelve a repasar y repite el test.'}</p><div style="text-align:center"><button class="btn" id="qr">↺ Repetir</button></div>`;$('#qr').onclick=()=>{qi=0;sc=0;renderQ()};return}
+ const q=Q[qi];box.innerHTML=`<div class="qbar"><div style="width:${qi/Q.length*100}%"></div></div><p style="color:var(--muted);font-weight:800;margin:0">Pregunta ${qi+1} de ${Q.length} · Aciertos: ${sc}</p><h3>${q.q}</h3>${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}<div class="fb" id="fb"></div>`;
+ $$('.opt',box).forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===q.a;if(ok)sc++;$$('.opt',box).forEach(x=>{x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('ok')});if(!ok)b.classList.add('ko');
+  const fb=$('#fb');fb.className='fb show';fb.style.background=ok?'#dcefd6':'#fbdcd9';fb.innerHTML=(ok?'✅ <b>¡Correcto!</b> ':'❌ <b>No exactamente.</b> ')+q.e+'<div style="margin-top:10px"><button class="btn b" id="qn">'+(qi<Q.length-1?'Siguiente →':'Ver resultado')+'</button></div>';$('#qn').onclick=()=>{qi++;renderQ()}})}
+renderQ();
+})();
+</script>
+</body>
+</html>
